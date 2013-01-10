@@ -23,9 +23,13 @@ class KnifeSupport
     :ssh_user               => "vagrant",
     :ssh_password           => "vagrant",
     :ssh_identity_file      => nil,
+    :platform               => nil,
+    :distro                 => nil,
+    # :template_file          => nil,
     :use_sudo               => true,
     :test_environment       => "vagrant",
-    :test_recipes           => []
+    :test_recipes           => [],
+    :knife_options         => {}
   }
 
   DEFAULTS[:knife_config_template] = <<-EOF
@@ -40,6 +44,9 @@ class KnifeSupport
   cache_type               'BasicFile'
   cache_options( :path => File.join('<%= KnifeSupport.singleton.chef_config_path %>', 'checksums' ))
   cookbook_path            [ '<%= KnifeSupport.singleton.cookbooks_path %>' ]
+  <% KnifeSupport.singleton.knife_options.each do |k, v| %>
+  knife[:<%= k.to_s %>] = '<%= v %>'
+  <% end %>
   EOF
 
   #
