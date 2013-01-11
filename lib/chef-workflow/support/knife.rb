@@ -25,7 +25,7 @@ class KnifeSupport
     :ssh_identity_file      => nil,
     :platform               => nil,
     :distro                 => nil,
-    # :template_file          => nil,
+    :template_file          => nil,
     :use_sudo               => true,
     :test_environment       => "vagrant",
     :test_recipes           => [],
