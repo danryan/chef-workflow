@@ -13,23 +13,24 @@ class KnifeSupport
 
   # defaults, yo
   DEFAULTS = {
-    :search_index_wait      => 60,
-    :cookbooks_path         => File.join(Dir.pwd, 'cookbooks'),
-    :chef_config_path       => File.join(GeneralSupport.singleton.workflow_dir, 'chef'),
-    :knife_config_path      => File.join(GeneralSupport.singleton.workflow_dir, 'chef', 'knife.rb'),
-    :roles_path             => File.join(Dir.pwd, 'roles'),
-    :environments_path      => File.join(Dir.pwd, 'environments'),
-    :data_bags_path         => File.join(Dir.pwd, 'data_bags'),
-    :ssh_user               => "vagrant",
-    :ssh_password           => "vagrant",
-    :ssh_identity_file      => nil,
-    :platform               => nil,
-    :distro                 => nil,
-    :template_file          => nil,
-    :use_sudo               => true,
-    :test_environment       => "vagrant",
-    :test_recipes           => [],
-    :knife_options         => {}
+    :search_index_wait         => 60,
+    :cookbooks_path            => File.join(Dir.pwd, 'cookbooks'),
+    :chef_config_path          => File.join(GeneralSupport.singleton.workflow_dir, 'chef'),
+    :knife_config_path         => File.join(GeneralSupport.singleton.workflow_dir, 'chef', 'knife.rb'),
+    :roles_path                => File.join(Dir.pwd, 'roles'),
+    :environments_path         => File.join(Dir.pwd, 'environments'),
+    :data_bags_path            => File.join(Dir.pwd, 'data_bags'),
+    :ssh_user                  => "vagrant",
+    :ssh_password              => "vagrant",
+    :ssh_identity_file         => nil,
+    :encrypted_data_bag_secret => nil,
+    :platform                  => nil,
+    :distro                    => nil,
+    :template_file             => nil,
+    :use_sudo                  => true,
+    :test_environment          => "vagrant",
+    :test_recipes              => [],
+    :knife_options             => {}
   }
 
   DEFAULTS[:knife_config_template] = <<-EOF
@@ -44,9 +45,12 @@ class KnifeSupport
   cache_type               'BasicFile'
   cache_options( :path => File.join('<%= KnifeSupport.singleton.chef_config_path %>', 'checksums' ))
   cookbook_path            [ '<%= KnifeSupport.singleton.cookbooks_path %>' ]
-  <% KnifeSupport.singleton.knife_options.each do |k, v| %>
+  <%- if KnifeSupport.singleton.encrypted_data_bag_secret -%>
+  encrypted_data_bag_secret '<%= KnifeSupport.singleton.encrypted_data_bag_secret %>'
+  <%- end %>
+  <%- KnifeSupport.singleton.knife_options.each do |k, v| -%>
   knife[:<%= k.to_s %>] = '<%= v %>'
-  <% end %>
+  <%- end -%>
   EOF
 
   #
@@ -124,6 +128,6 @@ class KnifeSupport
   #
   def build_knife_config
     FileUtils.mkdir_p(chef_config_path)
-    File.binwrite(knife_config_path, ERB.new(knife_config_template).result(binding))
+    File.binwrite(knife_config_path, ERB.new(knife_config_template, nil, '-').result(binding))
   end
 end

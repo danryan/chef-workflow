@@ -22,7 +22,6 @@ class VM
       args += %W[--platform #{KnifeSupport.singleton.platform}]                 if KnifeSupport.singleton.platform
       args += %W[--distro #{KnifeSupport.singleton.distro}]                     if KnifeSupport.singleton.distro
       # args += %W[--template-file #{KnifeSupport.singleton.template_file}]       if KnifeSupport.singleton.template_file
-      # args += %W[--config #{KnifeSupport.singleton.knife_config_path}]
       
       init_knife_plugin(Chef::Knife::ServerBootstrapStandalone, args).run
       true
