@@ -80,6 +80,8 @@ class VM
     # a server group.
     #
     def startup(*args)
+      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
+
       @ips = args.first #argh
       raise "This provisioner is unnamed, cannot continue" unless name
       raise "This provisioner requires ip addresses which were not supplied" unless ips
@@ -180,6 +182,8 @@ class VM
       args += %W[-N '#{node_name}']
       args += [ip]
 
+      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
+
       bootstrap_cli = init_knife_plugin(Chef::Knife::Bootstrap, args)
 
       Thread.new do
@@ -204,14 +208,16 @@ class VM
     # Deletes a chef client.
     #
     def client_delete(node_name)
-      init_knife_plugin(Chef::Knife::ClientDelete, [node_name, '-y']).run
+      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
+      init_knife_plugin(Chef::Knife::ClientDelete, [node_name, '-y', '-c', KnifeSupport.singleton.knife_config_path]).run
     end
 
     #
     # Deletes a chef node.
     #
     def node_delete(node_name)
-      init_knife_plugin(Chef::Knife::NodeDelete, [node_name, '-y']).run
+      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
+      init_knife_plugin(Chef::Knife::NodeDelete, [node_name, '-y', '-c', KnifeSupport.singleton.knife_config_path]).run
     end
   end
 end
