@@ -48,7 +48,12 @@ class Scheduler
     @vm                 = VM.load_from_file || VM.new 
 
     if at_exit_hook
-      at_exit { write_state }
+      at_exit {
+        # exit_code = $!
+        write_state
+        # exit $!
+        # exit false if exit_code && exit_code != 0
+      }
     end
   end
 
