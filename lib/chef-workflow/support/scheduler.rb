@@ -49,10 +49,11 @@ class Scheduler
 
     if at_exit_hook
       at_exit {
-        # exit_code = $!
+        # We must capture the previous exit status before we write the state 
+        # otherwise our rake tasks will exit 0 for any test failures
+        exit_code = $!
         write_state
-        # exit $!
-        # exit false if exit_code && exit_code != 0
+        exit $!
       }
     end
   end
