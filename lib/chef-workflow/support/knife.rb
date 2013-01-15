@@ -27,6 +27,7 @@ class KnifeSupport
     :platform                  => nil,
     :distro                    => nil,
     :template_file             => nil,
+    :chef_server_template_file => nil,
     :use_sudo                  => true,
     :test_environment          => "vagrant",
     :test_recipes              => [],

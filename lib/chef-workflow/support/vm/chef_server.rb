@@ -21,7 +21,7 @@ class VM
       args += %W[--identity-file #{KnifeSupport.singleton.ssh_identity_file}]   if KnifeSupport.singleton.ssh_identity_file
       args += %W[--platform #{KnifeSupport.singleton.platform}]                 if KnifeSupport.singleton.platform
       args += %W[--distro #{KnifeSupport.singleton.distro}]                     if KnifeSupport.singleton.distro
-      # args += %W[--template-file #{KnifeSupport.singleton.template_file}]       if KnifeSupport.singleton.template_file
+      args += %W[--template-file #{KnifeSupport.singleton.chef_server_template_file}]       if KnifeSupport.singleton.chef_server_template_file
       
       init_knife_plugin(Chef::Knife::ServerBootstrapStandalone, args).run
       true
