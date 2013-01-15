@@ -53,7 +53,7 @@ class Scheduler
         # otherwise our rake tasks will exit 0 for any test failures
         exit_code = $!
         write_state
-        exit $!
+        exit false if exit_code && exit_code != 0
       }
     end
   end
