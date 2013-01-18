@@ -35,6 +35,16 @@ class VagrantSupport
     @box = File.basename(url).gsub(/\.box$/, '')
   end
 
+  def vm_config(&block)
+    self.vm_config = block if block_given?
+
+    @vm_config
+  end
+
+  def vm_config=(config)
+    @vm_config = config
+  end
+
   include GenericSupport
 end
 

@@ -71,6 +71,9 @@ class VM
           IPSupport.singleton.assign_role_ip(name, ip)
           config.vm.define "#{name}-#{x}" do |this_config|
             this_config.vm.network :hostonly, ip
+            if VagrantSupport.singleton.vm_config
+              this_config.vm.instance_eval(&VagrantSupport.singleton.vm_config)
+            end
           end
         end
       end
