@@ -1,30 +1,34 @@
-#
-# mixin for supplying a consistent interface to singleton configuration classes.
-#
+require 'singleton'
+require 'deprecated'
 
-module GenericSupport
-  #-- 
-  # it's cool; this isn't absolutely evil or anything.
-  #++
-  def self.included(klass)
-    class << klass
-      # The singleton object that is supplying the current configuration.
-      # Always reference this when working with classes that use this
-      # interface.
-      attr_reader :singleton
+module ChefWorkflow
+  #
+  # mixin for supplying a consistent interface to singleton configuration classes.
+  #
 
-      # circular references, oh my
-      attr_accessor :supported_class
+  module GenericSupport
+    def self.included(klass)
+      klass.instance_eval do
+        include Singleton
 
-      #
-      # Configure the singleton. Instance evals a block that you can set stuff on.
-      #
-      def configure(&block)
-        @singleton ||= self.supported_class.new
-        @singleton.instance_eval(&block) if block
+        def self.configure(&block)
+          instance.instance_eval(&block) if block
+        end
+
+        def self.method_missing(sym, *args)
+          instance.send(sym, *args)
+        end
+
+        def self.singleton
+          instance
+        end
+
+        class << self
+          include Deprecated
+        end
+
+        self.singleton_class.deprecated :singleton, "#{klass.name} class methods"
       end
     end
-
-    klass.supported_class = klass
   end
 end

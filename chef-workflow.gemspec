@@ -5,7 +5,7 @@ require 'chef-workflow/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "chef-workflow"
-  gem.version       = Chef::Workflow::VERSION
+  gem.version       = ChefWorkflow::VERSION
   gem.authors       = ["Erik Hollensbe"]
   gem.email         = ["erik+github@hollensbe.org"]
   gem.description   = %q{A comprehensive rake-based workflow for chef}
@@ -22,6 +22,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'aws-sdk', '~> 1.7.0'
   gem.add_dependency 'net-ssh', '~> 2.2.2'
   gem.add_dependency 'knife-server', '~> 0.3.3'
+  gem.add_dependency 'sqlite3', '~> 1.3.6'
+  gem.add_dependency 'deprecated', '~> 3.0.1'
 
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'rake'

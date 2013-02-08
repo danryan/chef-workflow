@@ -1,34 +1,43 @@
-require 'chef-workflow/support/knife'
+require 'chef-workflow/support/debug'
 require 'chef-workflow/support/knife-plugin'
-require 'chef/knife/server_bootstrap_standalone'
 
-class VM
-  class ChefServerProvisioner
-    include DebugSupport
-    include KnifePluginSupport
+module ChefWorkflow
+  class VM
+    class ChefServerProvisioner
+      include ChefWorkflow::DebugSupport
+      include ChefWorkflow::KnifePluginSupport
 
-    attr_accessor :name
+      attr_accessor :name
 
-    def startup(*args)
-      ip = args.first.first #arg
+      def startup(*args)
+        require 'chef-workflow/support/knife'
+        require 'chef/knife/ssh' # required for chef 10.12
+        require 'chef/knife/server_bootstrap_standalone'
 
-      raise "No IP to use for the chef server" unless ip
+        ip = args.first.first #arg
 
-      args = %W[--node-name test-chef-server --host #{ip} -VV]
+        raise "No IP to use for the chef server" unless ip
 
-      args += %W[--ssh-user #{KnifeSupport.singleton.ssh_user}]                 if KnifeSupport.singleton.ssh_user
-      args += %W[--ssh-password #{KnifeSupport.singleton.ssh_password}]         if KnifeSupport.singleton.ssh_password
-      args += %W[--identity-file #{KnifeSupport.singleton.ssh_identity_file}]   if KnifeSupport.singleton.ssh_identity_file
-      args += %W[--platform #{KnifeSupport.singleton.platform}]                 if KnifeSupport.singleton.platform
-      args += %W[--distro #{KnifeSupport.singleton.distro}]                     if KnifeSupport.singleton.distro
-      args += %W[--template-file #{KnifeSupport.singleton.chef_server_template_file}]       if KnifeSupport.singleton.chef_server_template_file
-      
-      init_knife_plugin(Chef::Knife::ServerBootstrapStandalone, args).run
-      true
-    end 
+        args = %W[--node-name test-chef-server --host #{ip}]
 
-    def shutdown
-      true
+        args += %W[--ssh-user #{ChefWorkflow::KnifeSupport.ssh_user}]                         if ChefWorkflow::KnifeSupport.ssh_user
+        args += %W[--ssh-password #{ChefWorkflow::KnifeSupport.ssh_password}]                 if ChefWorkflow::KnifeSupport.ssh_password
+        args += %W[--identity-file #{ChefWorkflow::KnifeSupport.ssh_identity_file}]           if ChefWorkflow::KnifeSupport.ssh_identity_file
+        args += %W[--platform #{ChefWorkflow::KnifeSupport.platform}]                         if ChefWorkflow::KnifeSupport.platform
+        args += %W[--distro #{ChefWorkflow::KnifeSupport.distro}]                             if ChefWorkflow::KnifeSupport.distro
+        args += %W[--chef-server-version #{ChefWorkflow::KnifeSupport.chef_server_version}]   if ChefWorkflow::KnifeSupport.chef_server_version
+
+        init_knife_plugin(Chef::Knife::ServerBootstrapStandalone, args).run
+        true
+      end
+
+      def shutdown
+        true
+      end
+
+      def report
+        [name]
+      end
     end
   end
 end
