@@ -29,30 +29,38 @@ module ChefWorkflow
       :encrypted_data_bag_secret => nil,
       :use_sudo                  => true,
       :test_environment          => "vagrant",
-      :test_recipes              => []
+      :test_recipes              => [],
       :platform                  => nil,
-      :distro                    => nil,
-      :template_file             => nil,
+      :distro                    => 'chef-full',
+      :template_file             => false,
       :chef_server_version       => nil,
+      :chef_server_port          => 4000,
+      :chef_server_proxy         => false,
       :knife_options             => {}
     }
 
     DEFAULTS[:knife_config_template] = <<-EOF
-    log_level                :info
-    log_location             STDOUT
-    node_name                'test-user'
-    client_key               File.join('<%= KnifeSupport.chef_config_path %>', 'admin.pem')
-    validation_client_name   'chef-validator'
-    validation_key           File.join('<%= KnifeSupport.chef_config_path %>', 'validation.pem')
-    chef_server_url          'http://<%= IPSupport.get_role_ips("chef-server").first %>:4000'
-    environment              '<%= KnifeSupport.test_environment %>'
-    cache_type               'BasicFile'
-    cache_options( :path => File.join('<%= KnifeSupport.chef_config_path %>', 'checksums' ))
-    cookbook_path            [ '<%= KnifeSupport.cookbooks_path %>' ]
-    <%= "encrypted_data_bag_secret '#{KnifeSupport.encrypted_data_bag_secret}'" if KnifeSupport.singleton.encrypted_data_bag_secret %>
-    <%- KnifeSupport.singleton.knife_options.each do |k, v| -%>
-      knife[:<%= k.to_s %>] = '<%= v %>'
-    <%- end -%>
+log_level                :info
+log_location             STDOUT
+node_name                'test-user'
+client_key               File.join('<%= KnifeSupport.chef_config_path %>', 'admin.pem')
+validation_client_name   'chef-validator'
+validation_key           File.join('<%= KnifeSupport.chef_config_path %>', 'validation.pem')
+<%- if KnifeSupport.chef_server_proxy -%>
+chef_server_url          'https://<%= IPSupport.get_role_ips("chef-server").first %>'
+<%- else -%>
+chef_server_url          'http://<%= IPSupport.get_role_ips("chef-server").first %>:<%= KnifeSupport.chef_server_port %>'
+<%- end -%>
+environment              '<%= KnifeSupport.test_environment %>'
+cache_type               'BasicFile'
+cache_options( :path => File.join('<%= KnifeSupport.chef_config_path %>', 'checksums' ))
+cookbook_path            [ '<%= KnifeSupport.cookbooks_path %>' ]
+<%- if KnifeSupport.encrypted_data_bag_secret -%>
+encrypted_data_bag_secret '<%= KnifeSupport.encrypted_data_bag_secret %>'
+<%- end -%>
+<%- KnifeSupport.knife_options.each do |k, v| -%>
+knife[:<%= k.to_s %>] = '<%= v %>'
+<%- end -%>
     EOF
 
     attr_reader :attributes

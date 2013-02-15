@@ -36,6 +36,8 @@ module ChefWorkflow
       attr_accessor :ssh_key
       # the bootstrap template to be used.
       attr_accessor :template_file
+      # the bootstrap distro to be used if template_file is not specified.
+      attr_accessor :distro
       # the chef environment to be used.
       attr_accessor :environment
       # the port to contact for SSH
@@ -66,7 +68,8 @@ module ChefWorkflow
         @port           = nil
         @use_sudo       = nil
         @run_list       = nil
-        @template_file  = nil
+        @template_file  = false
+        @distro         = "chef-full"
         @environment    = nil
         @solr_check     = true
       end
@@ -183,6 +186,7 @@ module ChefWorkflow
         args += %w[--sudo]                            if use_sudo
         args += %W[-i #{ssh_key}]                     if ssh_key
         args += %W[--template-file #{template_file}]  if template_file
+        args += %W[--distro #{distro}]                if distro
         args += %W[-p #{port}]                        if port
         args += %W[-E #{environment}]                 if environment
 
@@ -191,7 +195,7 @@ module ChefWorkflow
         args += [ip]
 
         bootstrap_cli = init_knife_plugin(Chef::Knife::Bootstrap, args)
-
+        
         Thread.new do
           begin
             bootstrap_cli.run
@@ -224,71 +228,14 @@ module ChefWorkflow
         init_knife_plugin(Chef::Knife::ClientDelete, [node_name, '-y']).run
       end
 
-<<<<<<< HEAD
-    #
-    # Bootstraps a single node. Validates bootstrap by checking the node metadata
-    # directly and ensuring it made it into the chef server.
-    #
-    def bootstrap(node_name, ip)
-      args = []
-
-      args += %W[-x #{username}]                    if username
-      args += %W[-P #{password}]                    if password
-      args += %w[--sudo]                            if use_sudo
-      args += %W[-i #{ssh_key}]                     if ssh_key
-      args += %W[--template-file #{template_file}]  if template_file
-      args += %W[-p #{port}]                        if port 
-      args += %W[-E #{environment}]                 if environment
-
-      args += %W[-r #{run_list.join(",")}]
-      args += %W[-N '#{node_name}']
-      args += [ip]
-
-      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
-
-      bootstrap_cli = init_knife_plugin(Chef::Knife::Bootstrap, args)
-
-      Thread.new do
-        bootstrap_cli.run
-        # knife bootstrap is the honey badger when it comes to exit status.
-        # We can't rely on it, so we examine the run_list of the node instead
-        # to ensure it converged.
-        run_list_size = Chef::Node.load(node_name).run_list.to_a.size rescue 0
-        unless run_list_size > 0
-          puts bootstrap_cli.ui.stdout.string
-          puts bootstrap_cli.ui.stderr.string
-          raise "bootstrap for #{node_name}/#{ip} wasn't successful."
-        end
-        if_debug(2) do
-          puts bootstrap_cli.ui.stdout.string
-          puts bootstrap_cli.ui.stderr.string
-        end
-=======
       #
       # Deletes a chef node.
       #
       def node_delete(node_name)
         require 'chef/knife/node_delete'
         init_knife_plugin(Chef::Knife::NodeDelete, [node_name, '-y']).run
->>>>>>> 7017c271d51beea1705a1ff37f3a406c02c1d928
       end
 
-<<<<<<< HEAD
-    #
-    # Deletes a chef client.
-    #
-    def client_delete(node_name)
-      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
-      init_knife_plugin(Chef::Knife::ClientDelete, [node_name, '-y', '-c', KnifeSupport.singleton.knife_config_path]).run
-    end
-
-    #
-    # Deletes a chef node.
-    #
-    def node_delete(node_name)
-      Chef::Config.from_file(KnifeSupport.singleton.knife_config_path)
-      init_knife_plugin(Chef::Knife::NodeDelete, [node_name, '-y', '-c', KnifeSupport.singleton.knife_config_path]).run
-=======
       def report
         res = ["nodes:"]
 
@@ -298,7 +245,6 @@ module ChefWorkflow
 
         return res
       end
->>>>>>> 7017c271d51beea1705a1ff37f3a406c02c1d928
     end
   end
 end
