@@ -36,6 +36,7 @@ module ChefWorkflow
       :chef_server_version       => nil,
       :chef_server_port          => 4000,
       :chef_server_proxy         => false,
+      :webui_password            => "chefchef",
       :knife_options             => {}
     }
 
